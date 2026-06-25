@@ -77,7 +77,7 @@ export const genDefaultLocalStorage = (): LocalStorage => {
       prefs: {
         language: navigator.language,
         theme: 'system',
-        logLevel: 'ERROR',
+        logLevel: 'NONE',
       },
     },
     policies: {
