@@ -17,6 +17,10 @@ const LANG_OPTIONS = [
   {
     label: 'English',
     value: 'en-US'
+  },
+  {
+    label: '한국어',
+    value: 'ko-KR'
   }
 ]
 
