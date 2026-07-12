@@ -42,6 +42,8 @@ export const usePrefsStore = create<State & Actions>()(
     const getLanguage = (lang?: string) => {
       if (lang?.startsWith('zh')) {
         return 'zh-CN';
+      } else if (lang?.startsWith('ko')) {
+        return 'ko-KR';
       } else {
         return 'en-US';
       }
