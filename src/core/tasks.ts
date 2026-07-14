@@ -557,21 +557,26 @@ export const hookTasks: HookTask[] = [
         tzValue.locales = []
       }
 
+      const systemFmt = createLongOffsetFormatter()
       const customFmt = createLongOffsetFormatter(tzValue.zone)
+
+      const systemOffsetStr = systemFmt?.()
       const customOffsetStr = customFmt?.()
 
-      if (customFmt == null || customOffsetStr == null) {
+      if (systemFmt == null || customFmt == null || systemOffsetStr == null || customOffsetStr == null) {
         logger.warn('timezone customOffsetStr is null')
         return;
       }
 
-      const localOffsetMs = -(new Date().getTimezoneOffset() * 60000);
+      const systemOffsetMs = longOffsetToMs(systemOffsetStr);
       const customOffsetMs = longOffsetToMs(customOffsetStr);
 
       const getDiffMs = (date: Date) => {
-        const offsetStr = customFmt(date);
-        const offset = offsetStr ? longOffsetToMs(offsetStr) : customOffsetMs;
-        return offset - localOffsetMs;
+        const c = customFmt(date);
+        const s = systemFmt(date);
+        const cMs = c ? longOffsetToMs(c) : customOffsetMs;
+        const sMs = s ? longOffsetToMs(s) : systemOffsetMs;
+        return cMs - sMs;
       }
 
       const _Date = gthis.Date;
@@ -662,7 +667,11 @@ export const hookTasks: HookTask[] = [
         type DateHandler = (parts: TimeParts, date: Date) => any
 
         const tasks: { [key in keyof Date]?: DateHandler } = {
-          'getTimezoneOffset': () => -(customOffsetMs / 60000),
+          'getTimezoneOffset': (_, d) => {
+            const c = customFmt(d);
+            const cMs = c ? longOffsetToMs(c) : customOffsetMs;
+            return -Math.trunc(cMs / 60000)
+          },
           'toString': (p) => `${p.weekday} ${p.month} ${p.day?.padStart(2, '0')} ${p.year} ${p.hour?.padStart(2, '0')}:${p.minute?.padStart(2, '0')}:${p.second?.padStart(2, '0')} ${p.timeZoneName?.replace(':', '')}`,
           'toDateString': (p) => `${p.weekday} ${p.month} ${p.day?.padStart(2, '0')} ${p.year}`,
           'toTimeString': (p) => `${p.hour?.padStart(2, '0')}:${p.minute?.padStart(2, '0')}:${p.second?.padStart(2, '0')} ${p.timeZoneName?.replace(':', '')}`,

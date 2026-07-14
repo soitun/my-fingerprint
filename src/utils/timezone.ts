@@ -7,7 +7,7 @@ const _DateTimeFormat = Intl.DateTimeFormat;
  * const fmt = createLongOffsetFormatter('Asia/Shanghai')
  * fmt() // GMT+08:00
  */
-export const createLongOffsetFormatter = (timeZone: string): undefined | ((d?: Date) => string | undefined) => {
+export const createLongOffsetFormatter = (timeZone?: string): undefined | ((d?: Date) => string | undefined) => {
   try {
     const formatter = new _DateTimeFormat('en-US', {
       timeZone,
@@ -33,8 +33,8 @@ export const timeZoneToLongOffset = (timeZone: string, date?: Date): string | un
  */
 export function longOffsetToMs(offsetStr: string) {
   const sign = offsetStr[3] === '+' ? 1 : -1;
-  const [hours, minutes] = offsetStr.slice(4).split(':').map(Number);
-  return sign * (hours * 60 + minutes) * 60 * 1000;
+  const [hours, minutes = 0, seconds = 0] = offsetStr.slice(4).split(':').map(Number);
+  return sign * ((hours * 60 * 60) + (minutes * 60) + seconds) * 1000;
 }
 
 /**
